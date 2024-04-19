@@ -184,20 +184,20 @@ export default class AuthFlow {
       return {
         status: "success",
         message: "You have successfully signed in.",
-      };
+      } as const;
     } catch (error) {
       if (error instanceof AuthenticationError) {
         return {
           status: "error",
           error: error.message,
-        };
+        } as const;
       }
       // Handle signin errors
       console.error(error);
       return {
         status: "error",
         error: "An error occurred while signing in. Please try again.",
-      };
+      } as const;
     }
   };
 
