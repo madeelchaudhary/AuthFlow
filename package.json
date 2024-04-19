@@ -1,5 +1,6 @@
 {
   "name": "authflow",
+  "description": "AuthFlow is a fullstack authentication flow built with customizability in mind. It comes authentication functions and components that can be used in any project.",
   "version": "0.1.0",
   "private": true,
   "scripts": {
