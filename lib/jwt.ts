@@ -12,7 +12,7 @@ export const encode = (params: Params) => {
   const sign = new SignJWT(payload)
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
-    .setIssuer("SimpleAuth")
+    .setIssuer("AuthFlow")
     .setExpirationTime(Math.floor(Date.now() / 1000) + expiresIn)
     .setSubject("auth");
 
@@ -25,7 +25,7 @@ export const decode = async (token: string, secret: string) => {
   let payload: JWTPayload;
   try {
     const { payload: decoded } = await jwtVerify(token, secretKey, {
-      issuer: "SimpleAuth",
+      issuer: "AuthFlow",
       subject: "auth",
     });
 
