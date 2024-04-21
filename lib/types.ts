@@ -103,6 +103,7 @@ interface AuthConfigBase {
    * ```
    */
   jwtSecret?: string;
+
   /**
    * The SessionOptions interface defines the properties of the session options object.
    *
@@ -216,20 +217,6 @@ interface AuthConfigBase {
 
 export type AuthConfig = AuthConfigBase;
 
-export type AuthFlowResponse<TData = any> =
-  | {
-      status: "error";
-      error: string;
-    }
-  | {
-      status: "success";
-      data: TData;
-    }
-  | {
-      status: "success";
-      message: string;
-    };
-
 export type SignUpBaseSchema = z.ZodType<{
   email: string;
   password: string;
@@ -268,12 +255,14 @@ export interface SessionOptions {
    * - session: The session strategy is used for authentication. The session strategy is a stateful authentication mechanism that uses sessions and cookies.
    */
   strategy: "jwt" | "session";
+
   /**
    * The cookieName property specifies the name of the cookie that stores the session token.
    *
    * The cookieName property is a string that represents the name of the cookie that stores the session token. The default value is "auth_flow.session-token".
    */
   cookieName: string;
+
   /**
    * The maxAge property specifies the maximum age of the session token.
    *
@@ -285,11 +274,14 @@ export interface SessionOptions {
 export interface AuthPages {
   /**
    * The signin property specifies the URL of the login page. A user is redirected to the login page if they are not authenticated.
+   *
    * @default "/signin"
    */
   signin: string;
+
   /**
    * The signup property specifies the URL of the signup page. A user is redirected to the signup page if they do not have an account.
+   *
    * @default "/signup"
    */
   signup: string;
@@ -301,7 +293,6 @@ export interface User {
   lastName?: string | null;
   email: string;
   hashedPassword: string;
-  phoneNumber?: string | null;
   image?: string | null;
   status?: string | null;
   [key: string]: any;
