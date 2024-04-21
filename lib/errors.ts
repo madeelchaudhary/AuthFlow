@@ -1,3 +1,11 @@
+/**
+ * Custom error classes
+ * @module lib/errors
+ * @packageDocumentation
+ * This module contains custom error classes that are used in the authentication flow.
+ *
+ */
+
 export class AuthenticationError extends Error {
   constructor(message: string) {
     super(message);
@@ -44,20 +52,6 @@ export class InvalidCredentialsError extends AuthenticationError {
   constructor() {
     super("Invalid email or password");
     this.name = "InvalidCredentialsError";
-  }
-}
-
-export class EmailExistsError extends AuthenticationError {
-  constructor() {
-    super("Email already exists");
-    this.name = "EmailExistsError";
-  }
-}
-
-export class EmailNotFoundError extends AuthenticationError {
-  constructor() {
-    super("Email not found");
-    this.name = "EmailNotFoundError";
   }
 }
 
