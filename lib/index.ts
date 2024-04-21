@@ -27,7 +27,9 @@ import {
 } from "./types";
 import { SignInSchema, SignUpSchema } from "./validation";
 
-export default class AuthFlow {
+export default class AuthFlow<
+  TSessionData extends Record<string, any> = DefaultSessionData
+> {
   private adapter: Adapter;
   private jwtSecret: string;
   private identifier: string | number;
@@ -269,22 +271,14 @@ export default class AuthFlow {
         throw new UserNotFoundError();
       }
 
-      if (this?.callbacks?.session) {
-        const callbackResponse = this?.callbacks?.session(user, session);
-        if (callbackResponse) {
-          return {
-            status: "success",
-            data: callbackResponse,
-          } as const;
-        }
-      }
-
-      const sessionPayload = {
+      let sessionPayload = {
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
         image: user.image,
-      };
+      } as unknown as TSessionData;
+
+      this?.callbacks?.session?.(user, session, sessionPayload);
 
       return {
         status: "success",
@@ -294,10 +288,9 @@ export default class AuthFlow {
       if (error instanceof AuthenticationError) {
         if (
           error instanceof SessionExpiredError ||
-          error instanceof TokenExpiredError ||
-          error instanceof UnauthorizedError
+          error instanceof TokenExpiredError
         ) {
-          redirect(this.pages.signin);
+          cookies().delete(this.sessionOptions.cookieName);
         }
         return {
           status: "error",
@@ -328,3 +321,10 @@ const extractToken = () => {
 
   return token;
 };
+
+interface DefaultSessionData {
+  email: string;
+  firstName: string | null | undefined;
+  lastName: string | null | undefined;
+  image: string | null | undefined;
+}

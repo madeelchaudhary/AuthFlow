@@ -191,7 +191,7 @@ interface AuthConfigBase {
    *
    * @param jwt - A function that is called right before the JWT token is generated. The function receives the user object and the token as arguments. The function can be used to add custom claims to the token.
    *
-   * @param session - A function that is called right before the session is returned. The function receives the user object and the session object as arguments. The function can be used to store additional information in the session.
+   * @param session - A function that is called before the session is returned to the client. The function receives the user object, the session object, and the payload as arguments. The function can be used to add custom data to the session object.
    *
    */
   callbacks?: {
@@ -205,18 +205,20 @@ interface AuthConfigBase {
     jwt?(user: User, token: any): void;
 
     /**
-     * The session property specifies a function that is called right before the session is returned. The function receives the user object and the session object as arguments. The function can be used to store additional information in the session.
+     * The session property specifies a function that is called before the session is returned to the client. The function receives the user object, the session object, and the payload as arguments. The function can be used to add custom data to the session object.
      *
      * @param user - A User object representing the user.
      * @param session - A Session object representing the session.
-     *
-     * @returns A Record<string, any> object that should be stored in the session. The object can contain additional information about the user.
+     * @param payload - An object containing the payload data.
      *
      * @remarks
-     * The session callback is optional and is only required if additional information needs to be stored in the session. The session callback can be used to store custom claims or user data in the session.
-     *
+     * You can use the session callback to add custom data to the session object before it is returned to the client. For example, you can add the user's role or permissions to the session object.
      */
-    session?(user: User, session?: Session): void | Record<string, any>;
+    session?(
+      user: User,
+      session: Session | undefined,
+      payload: Record<string, any>
+    ): void;
   };
 
   /**
