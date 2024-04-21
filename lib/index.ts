@@ -6,13 +6,12 @@ import { z } from "zod";
 import { AUTH_FLOW_PAGES, AUTH_FLOW_SESSION_OPTIONS } from "./constants";
 import {
   AuthenticationError,
-  EmailExistsError,
-  EmailNotFoundError,
   InvalidCredentialsError,
   PasswordMismatchError,
   SessionExpiredError,
   TokenExpiredError,
   UnauthorizedError,
+  UserExistsError,
   UserNotFoundError,
 } from "./errors";
 import { decode, encode } from "./jwt";
@@ -31,6 +30,7 @@ import { SignInSchema, SignUpSchema } from "./validation";
 export default class AuthFlow {
   private adapter: Adapter;
   private jwtSecret: string;
+  private identifier: string | number;
   private loginValidationSchema: SignInBaseSchema;
   private signupValidationSchema: SignUpBaseSchema;
   private callbacks: AuthConfig["callbacks"];
@@ -45,6 +45,8 @@ export default class AuthFlow {
     this.jwtSecret = this.getSecret(config.jwtSecret);
     this.adapter = config.adapter;
     this.callbacks = config.callbacks;
+
+    this.identifier = config.identifier || "email";
     this.loginValidationSchema =
       config.schema?.login?.validationSchema || SignInSchema;
     this.signupValidationSchema =
@@ -82,10 +84,12 @@ export default class AuthFlow {
       const user = validationResult.data;
 
       // Check if user already exists in database
-      const userExists = await this.adapter.getUserByEmail(user.email);
+      const userExists = await this.adapter.getUserByIdentifier(
+        user[this.identifier]
+      );
 
       if (userExists) {
-        throw new EmailExistsError();
+        throw new UserExistsError();
       }
 
       // Hash password
@@ -132,11 +136,13 @@ export default class AuthFlow {
 
       const credentials = validationResult.data;
 
-      // Find user in database by email
-      const user = await this.adapter.getUserByEmail(credentials.email);
+      // Find user in database by identifier
+      const user = await this.adapter.getUserByIdentifier(
+        credentials[this.identifier]
+      );
 
       if (!user) {
-        throw new EmailNotFoundError();
+        throw new UserNotFoundError();
       }
 
       // Compare password hashes
@@ -155,12 +161,12 @@ export default class AuthFlow {
         firstName: user.firstName,
         lastName: user.lastName,
         image: user.image,
-        _identifier: user.email,
+        _identifier: user[this.identifier],
       };
 
       this?.callbacks?.jwt?.(user, tokenPayload);
 
-      tokenPayload._identifier = user.email;
+      tokenPayload._identifier = user[this.identifier];
 
       const token = await encode({
         payload: tokenPayload,
@@ -254,7 +260,9 @@ export default class AuthFlow {
         user = sessionWithUser.user;
         session = sessionWithUser.session;
       } else {
-        user = await this.adapter.getUserByEmail((payload as any)._identifier);
+        user = await this.adapter.getUserByIdentifier(
+          (payload as any)._identifier
+        );
       }
 
       if (!user) {

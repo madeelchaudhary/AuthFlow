@@ -7,15 +7,17 @@ interface SessionWithUser {
 
 export interface Adapter {
   /**
-   * The getUserByEmail method retrieves a user by email from the database.
-   * @param email - A string representing the email address of the user.
-   * @returns A Promise that resolves to a User object if the user is found, or null if the user is not found.
+   * The getUserByIdentifier method retrieves a user by identifier from the database.
+   *
+   * @param identifier - A string or number representing the identifier of the user.
+   * @returns A Promise that resolves to a User object representing the user. If the user does not exist, the method should return null.
    * @example
    * ```typescript
-   * const user = await adapter.getUserByEmail("[email protected]");
+   * const user = await adapter.getUserByIdentifier("[email protected]");
    * ```
    */
-  getUserByEmail(email: string): Promise<User | null>;
+  getUserByIdentifier(identifier: string | number): Promise<User | null>;
+
   /**
    * The createUser method creates a user record in the database.
    * @param user - An object containing the credentials of the user. The object must contain the email and password properties.
@@ -103,6 +105,20 @@ interface AuthConfigBase {
    * ```
    */
   jwtSecret?: string;
+
+  /**
+   * The identifier property specifies the identifier of the user.
+   *
+   * The identifier property is a string or number representing the identifier of the user. The identifier is used to uniquely identify the user in the database.
+   *
+   * @default "email" - The default identifier is the email address of the user.
+   *
+   * @remarks
+   * The identifier property is required to identify the user in the database. The identifier should be unique and should not change over time.
+   *
+   * The identifier property is used to retrieve the user from the database and to create a session for the user.
+   */
+  identifier?: string | number;
 
   /**
    * The SessionOptions interface defines the properties of the session options object.
