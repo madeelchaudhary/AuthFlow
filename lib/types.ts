@@ -59,10 +59,12 @@ export interface Adapter {
    * The destroySession method destroys a session.
    * @param sessionToken - A string representing the session token.
    * @returns A Promise that resolves when the session is destroyed.
+   *
    * @example
    * ```typescript
    * await adapter.destroySession("sessionToken");
    * ```
+   *
    * @remarks
    * This method is optional and is only required if the session strategy is used.
    *
@@ -76,10 +78,12 @@ export interface Adapter {
    * The getUserFromSession method retrieves a user from a session.
    * @param sessionToken - A string representing the session token.
    * @returns A Promise that resolves to a SessionWithUser object representing the session and user.
+   *
    * @example
    * ```typescript
    * const session = await adapter.getUserFromSession("sessionToken");
    * ```
+   *
    * @remarks
    * This method is optional and is only required if the session strategy is used.
    *
@@ -87,7 +91,9 @@ export interface Adapter {
    *
    * The getUserFromSession method should retrieve the session from the database and return the user associated with the session.
    */
-  getUserFromSession?(sessionToken: string): Promise<SessionWithUser>;
+  getUserFromSession?(
+    sessionToken: string
+  ): Promise<SessionWithUser | undefined>;
 }
 
 interface AuthConfigBase {
@@ -114,9 +120,9 @@ interface AuthConfigBase {
    * @default "email" - The default identifier is the email address of the user.
    *
    * @remarks
-   * The identifier property is required to identify the user in the database. The identifier should be unique and should not change over time.
-   *
    * The identifier property is used to retrieve the user from the database and to create a session for the user.
+   *
+   * Make sure to pass the schema with the identifier field. If you are using the default schema, the identifier field is email.
    */
   identifier?: string | number;
 
@@ -202,7 +208,7 @@ interface AuthConfigBase {
      * @param token - A string representing the JWT token.
      *
      */
-    jwt?(user: User, token: any): void;
+    jwt?(user: User, token: Record<string, any>): void;
 
     /**
      * The session property specifies a function that is called before the session is returned to the client. The function receives the user object, the session object, and the payload as arguments. The function can be used to add custom data to the session object.
@@ -236,13 +242,11 @@ interface AuthConfigBase {
 export type AuthConfig = AuthConfigBase;
 
 export type SignUpBaseSchema = z.ZodType<{
-  email: string;
   password: string;
   [k: string]: any;
 }>;
 
 export type SignInBaseSchema = z.ZodType<{
-  email: string;
   password: string;
   [k: string]: any;
 }>;
@@ -303,13 +307,22 @@ export interface AuthPages {
    * @default "/signup"
    */
   signup: string;
+
+  /**
+   * The error property specifies the URL of the error page. A user is redirected to the error page if an error occurs during the withAuth middleware.
+   *
+   * @default "/error"
+   *
+   * @remarks
+   * The error page is displayed when an error occurs during the withAuth middleware. Like database errors, authentication errors, etc. The error page should display an error message to the user.
+   */
+  error: string;
 }
 
 export interface User {
   id: string;
   firstName?: string | null;
   lastName?: string | null;
-  email: string;
   hashedPassword: string;
   image?: string | null;
   status?: string | null;

@@ -11,6 +11,7 @@ import { AuthPages, SessionOptions } from "./types";
 export const AUTH_FLOW_PAGES: AuthPages = {
   signin: "/signin",
   signup: "/signup",
+  error: "/error",
 };
 
 export const AUTH_FLOW_SESSION_OPTIONS: SessionOptions = {

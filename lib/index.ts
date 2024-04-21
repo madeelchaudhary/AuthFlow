@@ -54,8 +54,12 @@ export default class AuthFlow<
     this.signupValidationSchema =
       config.schema?.signup?.validationSchema || SignUpSchema;
 
+    AuthFlow.jwtSecret = this.jwtSecret;
+    AuthFlow.adapter = this.adapter;
+
     AUTH_FLOW_PAGES.signin = config?.pages?.signin || AUTH_FLOW_PAGES.signin;
     AUTH_FLOW_PAGES.signup = config?.pages?.signup || AUTH_FLOW_PAGES.signup;
+    AUTH_FLOW_PAGES.error = config?.pages?.error || AUTH_FLOW_PAGES.error;
 
     AUTH_FLOW_SESSION_OPTIONS.cookieName =
       config?.session?.cookieName || AUTH_FLOW_SESSION_OPTIONS.cookieName;
@@ -63,9 +67,6 @@ export default class AuthFlow<
       config?.session?.strategy || AUTH_FLOW_SESSION_OPTIONS.strategy;
     AUTH_FLOW_SESSION_OPTIONS.maxAge =
       config?.session?.maxAge || AUTH_FLOW_SESSION_OPTIONS.maxAge;
-
-    AuthFlow.jwtSecret = this.jwtSecret;
-    AuthFlow.adapter = this.adapter;
   }
 
   private getSecret(secret: string | undefined): string {
