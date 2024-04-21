@@ -1,5 +1,13 @@
 import { AuthPages, SessionOptions } from "./types";
 
+/**
+ * Constants for the authentication flow.
+ *
+ * @packageDocumentation
+ * This module contains constants for the authentication flow. These constants are used to configure the authentication flow.
+ *
+ */
+
 export const AUTH_FLOW_PAGES: AuthPages = {
   signin: "/signin",
   signup: "/signup",
