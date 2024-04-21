@@ -1,101 +1,4 @@
 import { z } from "zod";
-
-interface SessionWithUser {
-  session: Session;
-  user: User;
-}
-
-export interface Adapter {
-  /**
-   * The getUserByIdentifier method retrieves a user by identifier from the database.
-   *
-   * @param identifier - A string or number representing the identifier of the user.
-   * @returns A Promise that resolves to a User object representing the user. If the user does not exist, the method should return null.
-   * @example
-   * ```typescript
-   * const user = await adapter.getUserByIdentifier("[email protected]");
-   * ```
-   */
-  getUserByIdentifier(identifier: string | number): Promise<User | null>;
-
-  /**
-   * The createUser method creates a user record in the database.
-   * @param user - An object containing the credentials of the user. The object must contain the email and password properties.
-   * @returns A Promise that resolves to a User object representing the created user.
-   * @example
-   * ```typescript
-   * const user = await adapter.createUser({
-   *  email: "[email protected]",
-   *  hashedPassword: "hashedPassword",
-   * });
-   * ```
-   */
-  createUser(user: Omit<User, "id">): Promise<User>;
-
-  /**
-   * The createSession method creates a session for a user.
-   * @param user - A User object representing the user.
-   * @param sessionToken - A string representing the session token.
-   * @param expiresIn - A Date object representing the expiration date of the session.
-   * @returns A Promise that resolves to a SessionWithUser object representing the session and user.
-   * @example
-   * ```typescript
-   * const session = await adapter.createSession(user, "sessionToken", new Date());
-   * ```
-   * @remarks
-   * This method is optional and is only required if the session strategy is used.
-   *
-   * If the session strategy is used, the createSession method must be implemented to create a session for the user.
-   *
-   * The createSession method should store the session token and expiration date in the database.
-   */
-  createSession?(
-    user: User,
-    sessionToken: string,
-    expiresIn: Date
-  ): Promise<SessionWithUser>;
-
-  /**
-   * The destroySession method destroys a session.
-   * @param sessionToken - A string representing the session token.
-   * @returns A Promise that resolves when the session is destroyed.
-   *
-   * @example
-   * ```typescript
-   * await adapter.destroySession("sessionToken");
-   * ```
-   *
-   * @remarks
-   * This method is optional and is only required if the session strategy is used.
-   *
-   * If the session strategy is used, the destroySession method must be implemented to destroy the session.
-   *
-   * The destroySession method should remove the session from the database.
-   */
-  destroySession?(sessionToken: string): Promise<void>;
-
-  /**
-   * The getUserFromSession method retrieves a user from a session.
-   * @param sessionToken - A string representing the session token.
-   * @returns A Promise that resolves to a SessionWithUser object representing the session and user.
-   *
-   * @example
-   * ```typescript
-   * const session = await adapter.getUserFromSession("sessionToken");
-   * ```
-   *
-   * @remarks
-   * This method is optional and is only required if the session strategy is used.
-   *
-   * If the session strategy is used, the getUserFromSession method must be implemented to retrieve the user from the session.
-   *
-   * The getUserFromSession method should retrieve the session from the database and return the user associated with the session.
-   */
-  getUserFromSession?(
-    sessionToken: string
-  ): Promise<SessionWithUser | undefined>;
-}
-
 interface AuthConfigBase {
   /**
    * The jwtSecret property specifies the secret key used to sign the JWT token.
@@ -200,32 +103,7 @@ interface AuthConfigBase {
    * @param session - A function that is called before the session is returned to the client. The function receives the user object, the session object, and the payload as arguments. The function can be used to add custom data to the session object.
    *
    */
-  callbacks?: {
-    /**
-     * The jwt property specifies a function that is called right before the JWT token is generated. The function receives the user object and the token as arguments. The function can be used to add custom claims to the token.
-     *
-     * @param user - A User object representing the user.
-     * @param token - A string representing the JWT token.
-     *
-     */
-    jwt?(user: User, token: Record<string, any>): void;
-
-    /**
-     * The session property specifies a function that is called before the session is returned to the client. The function receives the user object, the session object, and the payload as arguments. The function can be used to add custom data to the session object.
-     *
-     * @param user - A User object representing the user.
-     * @param session - A Session object representing the session.
-     * @param payload - An object containing the payload data.
-     *
-     * @remarks
-     * You can use the session callback to add custom data to the session object before it is returned to the client. For example, you can add the user's role or permissions to the session object.
-     */
-    session?(
-      user: User,
-      session: Session | undefined,
-      payload: Record<string, any>
-    ): void;
-  };
+  callbacks?: Partial<Callbacks>;
 
   /**
    * The pages property specifies the URLs of the signin and signup pages.
@@ -241,6 +119,97 @@ interface AuthConfigBase {
 
 export type AuthConfig = AuthConfigBase;
 
+export interface Adapter {
+  /**
+   * The getUserByIdentifier method retrieves a user by identifier from the database.
+   *
+   * @param identifier - A string or number representing the identifier of the user.
+   * @returns A Promise that resolves to a User object representing the user. If the user does not exist, the method should return null.
+   * @example
+   * ```typescript
+   * const user = await adapter.getUserByIdentifier("[email protected]");
+   * ```
+   */
+  getUserByIdentifier(identifier: string | number): Promise<User | null>;
+
+  /**
+   * The createUser method creates a user record in the database.
+   * @param user - An object containing the credentials of the user. The object must contain the email and password properties.
+   * @returns A Promise that resolves to a User object representing the created user.
+   * @example
+   * ```typescript
+   * const user = await adapter.createUser({
+   *  email: "[email protected]",
+   *  hashedPassword: "hashedPassword",
+   * });
+   * ```
+   */
+  createUser(user: Omit<User, "id">): Promise<User>;
+
+  /**
+   * The createSession method creates a session for a user.
+   * @param user - A User object representing the user.
+   * @param sessionToken - A string representing the session token.
+   * @param expiresIn - A Date object representing the expiration date of the session.
+   * @returns A Promise that resolves to a SessionWithUser object representing the session and user.
+   * @example
+   * ```typescript
+   * const session = await adapter.createSession(user, "sessionToken", new Date());
+   * ```
+   * @remarks
+   * This method is optional and is only required if the session strategy is used.
+   *
+   * If the session strategy is used, the createSession method must be implemented to create a session for the user.
+   *
+   * The createSession method should store the session token and expiration date in the database.
+   */
+  createSession?(
+    user: User,
+    sessionToken: string,
+    expiresIn: Date
+  ): Promise<SessionWithUser>;
+
+  /**
+   * The destroySession method destroys a session.
+   * @param sessionToken - A string representing the session token.
+   * @returns A Promise that resolves when the session is destroyed.
+   *
+   * @example
+   * ```typescript
+   * await adapter.destroySession("sessionToken");
+   * ```
+   *
+   * @remarks
+   * This method is optional and is only required if the session strategy is used.
+   *
+   * If the session strategy is used, the destroySession method must be implemented to destroy the session.
+   *
+   * The destroySession method should remove the session from the database.
+   */
+  destroySession?(sessionToken: string): Promise<void>;
+
+  /**
+   * The getUserFromSession method retrieves a user from a session.
+   * @param sessionToken - A string representing the session token.
+   * @returns A Promise that resolves to a SessionWithUser object representing the session and user.
+   *
+   * @example
+   * ```typescript
+   * const session = await adapter.getUserFromSession("sessionToken");
+   * ```
+   *
+   * @remarks
+   * This method is optional and is only required if the session strategy is used.
+   *
+   * If the session strategy is used, the getUserFromSession method must be implemented to retrieve the user from the session.
+   *
+   * The getUserFromSession method should retrieve the session from the database and return the user associated with the session.
+   */
+  getUserFromSession?(
+    sessionToken: string
+  ): Promise<SessionWithUser | undefined>;
+}
+
 export type SignUpBaseSchema = z.ZodType<{
   password: string;
   [k: string]: any;
@@ -250,23 +219,6 @@ export type SignInBaseSchema = z.ZodType<{
   password: string;
   [k: string]: any;
 }>;
-
-/*
- * The Session interface defines the properties of a session object.
- *
- * The Session interface has the following properties:
- * @params id - A string representing the session ID.
- * @param userId - A string representing the user ID.
- * @param expires - A Date object representing the expiration date of the session.
- * @param accessToken - A string representing the access token.
- */
-export interface Session {
-  id: string;
-  userId: string;
-  expires: Date;
-  accessToken: string;
-  [key: string]: any;
-}
 
 export interface SessionOptions {
   /**
@@ -319,6 +271,33 @@ export interface AuthPages {
   error: string;
 }
 
+interface Callbacks {
+  /**
+   * The jwt property specifies a function that is called right before the JWT token is generated. The function receives the user object and the token as arguments. The function can be used to add custom claims to the token.
+   *
+   * @param user - A User object representing the user.
+   * @param token - A string representing the JWT token.
+   *
+   */
+  jwt(user: User, token: Record<string, any>): void;
+
+  /**
+   * The session property specifies a function that is called before the session is returned to the client. The function receives the user object, the session object, and the payload as arguments. The function can be used to add custom data to the session object.
+   *
+   * @param user - A User object representing the user.
+   * @param session - A Session object representing the session.
+   * @param payload - An object containing the payload data.
+   *
+   * @remarks
+   * You can use the session callback to add custom data to the session object before it is returned to the client. For example, you can add the user's role or permissions to the session object.
+   */
+  session(
+    user: User,
+    session: Session | undefined,
+    payload: Record<string, any>
+  ): void;
+}
+
 export interface User {
   id: string;
   firstName?: string | null;
@@ -327,4 +306,26 @@ export interface User {
   image?: string | null;
   status?: string | null;
   [key: string]: any;
+}
+
+/*
+ * The Session interface defines the properties of a session object.
+ *
+ * The Session interface has the following properties:
+ * @params id - A string representing the session ID.
+ * @param userId - A string representing the user ID.
+ * @param expires - A Date object representing the expiration date of the session.
+ * @param accessToken - A string representing the access token.
+ */
+export interface Session {
+  id: string;
+  userId: string;
+  expires: Date;
+  accessToken: string;
+  [key: string]: any;
+}
+
+interface SessionWithUser {
+  session: Session;
+  user: User;
 }
