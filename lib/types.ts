@@ -271,7 +271,7 @@ export interface AuthPages {
   error: string;
 }
 
-interface Callbacks {
+export interface Callbacks {
   /**
    * The jwt property specifies a function that is called right before the JWT token is generated. The function receives the user object and the token as arguments. The function can be used to add custom claims to the token.
    *
