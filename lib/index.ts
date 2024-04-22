@@ -3,7 +3,11 @@ import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
-import { AUTH_FLOW_PAGES, AUTH_FLOW_SESSION_OPTIONS } from "./constants";
+import {
+  AUTH_FLOW_MICS,
+  AUTH_FLOW_PAGES,
+  AUTH_FLOW_SESSION_OPTIONS,
+} from "./constants";
 import {
   AuthenticationError,
   InvalidCredentialsError,
@@ -19,6 +23,7 @@ import {
   Adapter,
   AuthConfig,
   AuthPages,
+  Callbacks,
   Session,
   SessionOptions,
   SignInBaseSchema,
@@ -31,48 +36,36 @@ export default class AuthFlow<
   TSessionData extends Record<string, any> = DefaultSessionData
 > {
   private adapter: Adapter;
-  private jwtSecret: string;
-  private identifier: string | number;
   private loginValidationSchema: SignInBaseSchema;
   private signupValidationSchema: SignUpBaseSchema;
-  private callbacks: AuthConfig["callbacks"];
+  private callbacks?: Partial<Callbacks>;
 
+  private jwtSecret = AUTH_FLOW_MICS.jwtSecret;
+  private identifier = AUTH_FLOW_MICS.identifier;
   private sessionOptions: SessionOptions = AUTH_FLOW_SESSION_OPTIONS;
   private pages: AuthPages = AUTH_FLOW_PAGES;
 
-  public static jwtSecret: string;
-  public static adapter: Adapter;
-
   constructor(config: AuthConfig) {
-    this.jwtSecret = this.getSecret(config.jwtSecret);
     this.adapter = config.adapter;
     this.callbacks = config.callbacks;
 
-    this.identifier = config.identifier || "email";
     this.loginValidationSchema =
       config.schema?.login?.validationSchema || SignInSchema;
     this.signupValidationSchema =
       config.schema?.signup?.validationSchema || SignUpSchema;
 
-    AuthFlow.jwtSecret = this.jwtSecret;
-    AuthFlow.adapter = this.adapter;
+    this.jwtSecret = config.jwtSecret || this.jwtSecret;
+    this.identifier = config.identifier || this.identifier;
 
-    AUTH_FLOW_PAGES.signin = config?.pages?.signin || AUTH_FLOW_PAGES.signin;
-    AUTH_FLOW_PAGES.signup = config?.pages?.signup || AUTH_FLOW_PAGES.signup;
-    AUTH_FLOW_PAGES.error = config?.pages?.error || AUTH_FLOW_PAGES.error;
+    this.sessionOptions = {
+      ...this.sessionOptions,
+      ...(config.session || {}),
+    };
 
-    AUTH_FLOW_SESSION_OPTIONS.cookieName =
-      config?.session?.cookieName || AUTH_FLOW_SESSION_OPTIONS.cookieName;
-    AUTH_FLOW_SESSION_OPTIONS.strategy =
-      config?.session?.strategy || AUTH_FLOW_SESSION_OPTIONS.strategy;
-    AUTH_FLOW_SESSION_OPTIONS.maxAge =
-      config?.session?.maxAge || AUTH_FLOW_SESSION_OPTIONS.maxAge;
-  }
-
-  private getSecret(secret: string | undefined): string {
-    return (
-      secret || process.env.JWT_SECRET || "default_secret_used_by_auth_flow"
-    );
+    this.pages = {
+      ...this.pages,
+      ...(config.pages || {}),
+    };
   }
 
   signUp = async (payload: z.infer<SignUpBaseSchema>) => {
@@ -212,9 +205,12 @@ export default class AuthFlow<
 
   signOut = async () => {
     try {
-      const token = extractToken();
+      const token = extractToken(this.sessionOptions.cookieName);
 
-      const payload = await decode(token, this.jwtSecret);
+      const payload = await decode({
+        token,
+        secret: this.jwtSecret,
+      });
 
       if (this.sessionOptions.strategy === "session") {
         await this.adapter.destroySession?.(token);
@@ -242,9 +238,12 @@ export default class AuthFlow<
 
   session = async () => {
     try {
-      const token = extractToken();
+      const token = extractToken(this.sessionOptions.cookieName);
 
-      const payload = await decode(token, this.jwtSecret);
+      const payload = await decode({
+        token,
+        secret: this.jwtSecret,
+      });
 
       let user: User | null = null;
       let session: Session | undefined;
@@ -308,8 +307,7 @@ export default class AuthFlow<
   };
 }
 
-const extractToken = () => {
-  const cookieName = AUTH_FLOW_SESSION_OPTIONS.cookieName;
+const extractToken = (cookieName: string) => {
   let token = cookies().get(cookieName)?.value;
 
   if (!token) {
