@@ -8,25 +8,30 @@ interface Params {
 }
 
 export const encode = (params: Params) => {
-  const { payload, secret, expiresIn } = params;
+  const { payload = {}, secret, expiresIn } = params;
+
   const sign = new SignJWT(payload)
-    .setProtectedHeader({ alg: "HS256" })
+    .setProtectedHeader({ alg: "HS256", typ: "JWT" })
     .setIssuedAt()
     .setIssuer("AuthFlow")
-    .setExpirationTime(Math.floor(Date.now() / 1000) + expiresIn)
-    .setSubject("auth");
+    .setExpirationTime(Math.floor(Date.now() / 1000) + expiresIn);
 
-  const secretKey = Buffer.from(secret, "base64");
+  const secretKey = getSecretKey(secret);
   return sign.sign(secretKey);
 };
 
-export const decode = async (token: string, secret: string) => {
-  const secretKey = Buffer.from(secret, "base64");
+interface DecodeParams {
+  token: string;
+  secret: string;
+}
+
+export const decode = async ({ secret, token }: DecodeParams) => {
+  const secretKey = getSecretKey(secret);
+
   let payload: JWTPayload;
   try {
     const { payload: decoded } = await jwtVerify(token, secretKey, {
       issuer: "AuthFlow",
-      subject: "auth",
     });
 
     payload = decoded;
@@ -34,11 +39,18 @@ export const decode = async (token: string, secret: string) => {
     if (error instanceof errors.JWTExpired) {
       throw new TokenExpiredError();
     }
-    if (error instanceof errors.JWTInvalid) {
+    if (
+      error instanceof errors.JWTInvalid ||
+      error instanceof errors.JWSSignatureVerificationFailed
+    ) {
       throw new TokenInvalidError();
     }
+
+    console.error(error, "Error decoding token");
     throw new Error("An error occurred");
   }
 
   return payload;
 };
+
+const getSecretKey = (secret: string) => new TextEncoder().encode(secret);
