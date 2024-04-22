@@ -85,10 +85,10 @@ export default function withAuthEdge(
     const signinPage = pages?.signin || authFlowPages.signin;
     const publicPages = pages?.public || [];
 
-    publicPages.push(errorPage, authFlowPages.signup);
+    publicPages.push(errorPage);
+    unAuthonticatedPages.push(signinPage);
 
     const path = req.nextUrl.pathname;
-
     if (
       publicPages.includes(path) ||
       publicPages.some((page) => path.startsWith(page))
@@ -106,8 +106,7 @@ export default function withAuthEdge(
 
       if (
         unAuthonticatedPages.includes(path) ||
-        unAuthonticatedPages.some((page) => path.startsWith(page)) ||
-        path.startsWith(signinPage)
+        unAuthonticatedPages.some((page) => path.startsWith(page))
       ) {
         return NextResponse.redirect(new URL(homePage, req.url)); // Redirect to the home page if the user is on an unauthenticated page
       }
@@ -118,7 +117,11 @@ export default function withAuthEdge(
 
       return handler(req, res, payload); // Call the protected handler function with the user object
     } catch (error) {
-      if (path.startsWith(signinPage)) {
+      if (
+        path.startsWith(authFlowPages.signup) ||
+        unAuthonticatedPages.includes(path) ||
+        unAuthonticatedPages.some((page) => path.startsWith(page))
+      ) {
         return NextResponse.next(); // Call the next middleware if the user is on an auth page
       }
 

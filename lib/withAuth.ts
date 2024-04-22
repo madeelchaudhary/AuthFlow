@@ -84,7 +84,8 @@ export default function withAuth(
     const signinPage = pages?.signin || authFlowPages.signin;
     const publicPages = pages?.public || [];
 
-    publicPages.push(errorPage, authFlowPages.signup);
+    publicPages.push(errorPage);
+    unAuthonticatedPages.push(signinPage);
 
     const path = req.nextUrl.pathname;
 
@@ -127,8 +128,7 @@ export default function withAuth(
 
       if (
         unAuthonticatedPages.includes(path) ||
-        unAuthonticatedPages.some((page) => path.startsWith(page)) ||
-        path.startsWith(signinPage)
+        unAuthonticatedPages.some((page) => path.startsWith(page))
       ) {
         return NextResponse.redirect(new URL(homePage, req.url)); // Redirect to the home page if the user is on an unauthenticated page
       }
@@ -139,7 +139,11 @@ export default function withAuth(
 
       return handler(req, res, user); // Call the protected handler function with the user object
     } catch (error) {
-      if (path.startsWith(signinPage)) {
+      if (
+        path.startsWith(authFlowPages.signup) ||
+        unAuthonticatedPages.includes(path) ||
+        unAuthonticatedPages.some((page) => path.startsWith(page))
+      ) {
         return NextResponse.next(); // Call the next middleware if the user is on an auth page
       }
 
