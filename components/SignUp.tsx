@@ -20,17 +20,23 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { AUTH_FLOW_PAGES } from "@/lib/constants";
 
 interface Props {
   signUp: typeof AuthFlow.prototype.signUp;
+  pages?: {
+    signin?: string;
+    redirectAfterSignUp?: string;
+  };
 }
 
-const Signup = ({ signUp }: Props) => {
+const Signup = ({ signUp, pages }: Props) => {
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  const signInPage = pages?.signin || "/signin";
+  const redirectAfterSignUp = pages?.redirectAfterSignUp || "/signin";
 
   const { push } = useRouter();
 
@@ -53,7 +59,7 @@ const Signup = ({ signUp }: Props) => {
       setMessage(res.message);
       setIsLoading(false);
       setTimeout(() => {
-        push(AUTH_FLOW_PAGES.signin);
+        push(redirectAfterSignUp);
       }, 500);
       return;
     }
@@ -164,10 +170,7 @@ const Signup = ({ signUp }: Props) => {
 
           <p className="text-center text-sm text-gray-500">
             Already have an account?{" "}
-            <Link
-              className="text-blue-400 hover:underline"
-              href={AUTH_FLOW_PAGES.signin}
-            >
+            <Link className="text-blue-400 hover:underline" href={signInPage}>
               Sign In
             </Link>
           </p>
