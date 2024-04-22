@@ -8,6 +8,7 @@ import {
   useState,
 } from "react";
 import { session } from "./auth";
+import { usePathname, useRouter } from "next/navigation";
 
 interface Session {
   /**
@@ -57,9 +58,19 @@ const SessionContext = createContext<Session>({
  * }
  * ```
  */
-export function SessionProvider({ children }: { children: ReactNode }) {
+export function SessionProvider({
+  children,
+  sessionTimeout,
+}: {
+  children: ReactNode;
+  sessionTimeout?: number;
+}) {
   const [status, setStatus] = useState<Session["status"]>("loading");
   const [data, setData] = useState<Session["data"]>(undefined);
+  const timeout = sessionTimeout || 1000 * 60 * 5; // 5 minutes
+
+  const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -75,8 +86,12 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       setData(res.data);
     };
 
+    const sessionIdleInterval = setInterval(fetchData, timeout);
+
     fetchData();
-  }, []);
+
+    return () => clearInterval(sessionIdleInterval);
+  }, [router, pathname, timeout]);
 
   return (
     <SessionContext.Provider value={{ status, data }}>
