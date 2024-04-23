@@ -1,3 +1,25 @@
 {
-  "extends": "next/core-web-vitals"
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "ecmaVersion": "latest",
+    "sourceType": "module",
+    "project": "./tsconfig.json" // Reference your tsconfig for type checking
+  },
+  "plugins": ["@typescript-eslint", "react"],
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:react/recommended",
+    "plugin:react-hooks/recommended" // Add for React Hooks rules (optional)
+  ],
+  "rules": {
+    "@typescript-eslint/no-explicit-any": "warn", // Disallow 'any' type (adjust as needed)
+    "@typescript-eslint/no-unused-vars": "warn", // Warn about unused variables
+    "react/prop-types": "off", // Disable prop-types rule (consider alternatives like TypeScript)
+    "react/jsx-uses-vars": "warn", // Warn about unused JSX variables,
+    "prefer-const": "warn" // Prefer 'const' over 'let' (adjust as needed)
+  }
 }
