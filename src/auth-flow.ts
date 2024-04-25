@@ -207,7 +207,7 @@ export default class AuthFlow<
     try {
       const token = extractToken(this.sessionOptions.cookieName);
 
-      const payload = await decode({
+      await decode({
         token,
         secret: this.jwtSecret,
       });
@@ -263,7 +263,7 @@ export default class AuthFlow<
         session = sessionWithUser.session;
       } else {
         user = await this.adapter.getUserByIdentifier(
-          (payload as any)._identifier
+          payload._identifier as keyof typeof payload
         );
       }
 
