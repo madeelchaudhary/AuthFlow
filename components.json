@@ -8,7 +8,7 @@
     "css": "@/src/react/globals.css",
     "baseColor": "slate",
     "cssVariables": false,
-    "prefix": ""
+    "prefix": "authflow-"
   },
   "aliases": {
     "components": "@/src/components",
