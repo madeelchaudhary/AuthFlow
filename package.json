@@ -8,17 +8,28 @@
     "authorization"
   ],
   "main": "dist/index.js",
-  "module": "dist/index.esm.js",
+  "module": "dist/index.mjs",
   "types": "dist/types.d.ts",
   "license": "MIT",
   "version": "0.1.0",
-  "private": false,
+  "author": {
+    "email": "madeelchaudhry@gmail.com",
+    "name": "M Adeel",
+    "url": "https://github.com/madeelchaudhary"
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "build": "yarn clean && yarn lint && yarn tsup",
+    "prepublish": "yarn build",
+    "build": "tsup",
+    "dev": "tsup --watch",
     "test": "jest",
     "prepublishOnly": "yarn build",
     "lint": "eslint . --ext .ts,.tsx",
-    "clean": "rm -rf dist"
+    "format": "prettier --write",
+    "clean": "rm -rf dist",
+    "tailwind:css": "tailwindcss -i ./src/react/globals.css -o ./dist/tailwind.css"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",
@@ -27,7 +38,7 @@
     "bcrypt": "^5.1.1",
     "jose": "^5.2.4",
     "react-hook-form": "^7.51.3",
-    "zod": "^3.22.5"
+    "zod": "^3.23.4"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
@@ -42,9 +53,9 @@
     "eslint": "^8",
     "eslint-plugin-react": "^7.34.1",
     "eslint-plugin-react-hooks": "^4.6.0",
-    "lucide-react": "^0.371.0",
     "next": "^14",
     "postcss": "^8",
+    "prettier": "3.2.5",
     "react": "^18",
     "react-dom": "^18",
     "tailwind-merge": "^2.2.2",
@@ -54,31 +65,34 @@
     "tsup": "^8.0.2",
     "typescript": "^5"
   },
+  "engines": {
+     "node": ">=18.17.0",
+     "yarn": ">=1.22.22"
+  },
+  "packageManager": "yarn@1.22.22",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/madeelchaudhary/AuthFlow"
+  },
   "exports": {
     ".": {
       "import": "./dist/index.mjs",
-      "require": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/index.js"
     },
     "./react": {
-      "import": "./dist/react/idex.mjs",
-      "require": "./dist/react/index.js",
-      "types": "./dist/react/index.d.ts"
+      "import": "./dist/react/index.mjs",
+      "require": "./dist/react/index.js"
     },
     "./withAuth": {
       "import": "./dist/withAuth.mjs",
-      "require": "./dist/withAuth.js",
-      "types": "./dist/withAuth.d.ts"
+      "require": "./dist/withAuth.js"
     },
     "./withAuthEdge": {
       "import": "./dist/withAuthEdge.mjs",
-      "require": "./dist/withAuthEdge.js",
-      "types": "./dist/withAuthEdge.d.ts"
+      "require": "./dist/withAuthEdge.js"
     },
-    "./types": {
-      "import": "./dist/types.mjs",
-      "require": "./dist/types.js",
-      "types": "./dist/types.d.ts"
-    }
+    "./index.css": "./dist/react/index.css",
+    "./types": "./dist/types.d.ts"
   }
+
 }
