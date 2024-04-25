@@ -1,15 +1,9 @@
-"use client";
+'use client'
 
-import {
-  ReactNode,
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
-import { usePathname, useRouter } from "next/navigation";
-import AuthFlow from "../auth-flow";
-import * as React from "react";
+import { ReactNode, createContext, useContext, useEffect, useState } from 'react'
+import { usePathname, useRouter } from 'next/navigation'
+import AuthFlow from '../auth-flow'
+import * as React from 'react'
 
 interface Session {
   /**
@@ -20,7 +14,7 @@ interface Session {
    * If the user is not authenticated, this will be `"unauthenticated"`.
    *
    */
-  status: "loading" | "authenticated" | "unauthenticated";
+  status: 'loading' | 'authenticated' | 'unauthenticated'
 
   /**
    * The user's session data.
@@ -33,13 +27,13 @@ interface Session {
    * Wrapping components in a `SessionProvider` will provide the session data to all children components.
    *
    */
-  data: undefined | null | Awaited<ReturnType<AuthFlow["session"]>>["data"];
+  data: undefined | null | Awaited<ReturnType<AuthFlow['session']>>['data']
 }
 
 const SessionContext = createContext<Session>({
-  status: "loading",
+  status: 'loading',
   data: undefined,
-});
+})
 
 /**
  * A provider for the user's session.
@@ -64,43 +58,39 @@ export function SessionProvider({
   session,
   sessionTimeout,
 }: {
-  children: ReactNode;
-  session: AuthFlow["session"];
-  sessionTimeout?: number;
+  children: ReactNode
+  session: AuthFlow['session']
+  sessionTimeout?: number
 }) {
-  const [status, setStatus] = useState<Session["status"]>("loading");
-  const [data, setData] = useState<Session["data"]>(undefined);
-  const timeout = sessionTimeout || 1000 * 60 * 5; // 5 minutes
+  const [status, setStatus] = useState<Session['status']>('loading')
+  const [data, setData] = useState<Session['data']>(undefined)
+  const timeout = sessionTimeout || 1000 * 60 * 5 // 5 minutes
 
-  const router = useRouter();
-  const pathname = usePathname();
+  const router = useRouter()
+  const pathname = usePathname()
 
   useEffect(() => {
     const fetchData = async () => {
-      const res = await session();
+      const res = await session()
 
-      if (res.status === "error") {
-        setStatus("unauthenticated");
-        setData(null);
-        return;
+      if (res.status === 'error') {
+        setStatus('unauthenticated')
+        setData(null)
+        return
       }
 
-      setStatus("authenticated");
-      setData(res.data);
-    };
+      setStatus('authenticated')
+      setData(res.data)
+    }
 
-    const sessionIdleInterval = setInterval(fetchData, timeout);
+    const sessionIdleInterval = setInterval(fetchData, timeout)
 
-    fetchData();
+    fetchData()
 
-    return () => clearInterval(sessionIdleInterval);
-  }, [session, router, pathname, timeout]);
+    return () => clearInterval(sessionIdleInterval)
+  }, [session, router, pathname, timeout])
 
-  return (
-    <SessionContext.Provider value={{ status, data }}>
-      {children}
-    </SessionContext.Provider>
-  );
+  return <SessionContext.Provider value={{ status, data }}>{children}</SessionContext.Provider>
 }
 
 /**
@@ -127,4 +117,4 @@ export function SessionProvider({
  * }
  * ```
  */
-export const useSession = () => useContext(SessionContext);
+export const useSession = () => useContext(SessionContext)

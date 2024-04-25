@@ -1,9 +1,7 @@
-"use client";
+'use client'
 
-import SignIn from "./SignIn";
-import Signup from "./SignUp";
-import { SessionProvider, useSession } from "./session";
+import './globals.css'
 
-import "./globals.css";
-
-export { SignIn, Signup, SessionProvider, useSession };
+export { default as SignIn } from './SignIn'
+export { default as SignUp } from './SignUp'
+export { SessionProvider, useSession } from './session'

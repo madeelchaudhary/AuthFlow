@@ -1,184 +1,208 @@
-"use client";
+'use client'
 
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 
-import { Button } from "@/src/components/ui/button";
+import { Button } from '@/src/components/ui/button'
 import {
   Form,
   FormControl,
   FormDescription,
   FormField,
   FormItem,
+  FormLabel,
   FormMessage,
-} from "@/src/components/ui/form";
-import { Input } from "@/src/components/ui/input";
-import AuthFlow from "@/src/auth-flow";
-import { SignUpSchema } from "@/src/validation";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import * as React from "react";
+} from '@/src/components/ui/form'
+import { Input } from '@/src/components/ui/input'
+import AuthFlow from '@/src/auth-flow'
+import { SignUpSchema } from '@/src/validation'
+import { zodResolver } from '@hookform/resolvers/zod'
+import EyeOff from '../components/ui/EyeOff'
+import Eye from '../components/ui/Eye'
+import Loader from '../components/ui/Loader'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import * as React from 'react'
+import { ClassName, Field } from './types'
+import { cn } from '../utils'
+import { SignUpBaseSchema } from '../types'
 
 interface Props {
-  signUp: typeof AuthFlow.prototype.signUp;
+  signUp: typeof AuthFlow.prototype.signUp
   pages?: {
-    signin?: string;
-    redirectAfterSignUp?: string;
-  };
+    signin?: string
+    redirectAfterSignUp?: string
+  }
+  schema?: SignUpBaseSchema
+  fields?: Field[]
+  wrapperClassName?: ClassName
+  formClassName?: ClassName
+  buttonClassName?: ClassName
 }
 
-const Signup = ({ signUp, pages }: Props) => {
-  const [error, setError] = useState<string | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
+const defaultFields: Field[] = [
+  {
+    name: 'email',
+    labelText: 'Email',
+    type: 'email',
+    placeholder: 'Email',
+  },
+  {
+    name: 'password',
+    labelText: 'Password',
+    type: 'password',
+    placeholder: 'Password',
+    hint: 'Password must be at least 8 characters',
+  },
+  {
+    name: 'confirmPassword',
+    labelText: 'Confirm Password',
+    type: 'password',
+    placeholder: 'Confirm Password',
+  },
+]
 
-  const signInPage = pages?.signin || "/signin";
-  const redirectAfterSignUp = pages?.redirectAfterSignUp || "/signin";
+const Signup = ({
+  signUp,
+  pages,
+  fields = defaultFields,
+  schema,
+  wrapperClassName,
+  formClassName,
+  buttonClassName,
+}: Props) => {
+  const [error, setError] = useState<string | null>(null)
+  const [message, setMessage] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
-  const { push } = useRouter();
+  const signInPage = pages?.signin || '/signin'
+  const redirectAfterSignUp = pages?.redirectAfterSignUp || '/signin'
 
-  const form = useForm<z.infer<typeof SignUpSchema>>({
+  const { push } = useRouter()
+
+  const validationSchema = schema || SignUpSchema
+
+  const form = useForm<z.infer<typeof validationSchema>>({
     resolver: zodResolver(SignUpSchema),
     defaultValues: {
-      email: "",
-      password: "",
-      confirmPassword: "",
+      email: '',
+      password: '',
+      confirmPassword: '',
     },
-  });
+  })
 
-  const onSubmit = async (values: z.infer<typeof SignUpSchema>) => {
-    setIsLoading(true);
-    setError(null);
+  const onSubmit = async (values: z.infer<typeof validationSchema>) => {
+    setIsLoading(true)
+    setError(null)
 
-    const res = await signUp(values);
+    const res = await signUp(values)
 
-    if (res.status === "success") {
-      setMessage(res.message);
-      setIsLoading(false);
+    if (res.status === 'success') {
+      setMessage(res.message)
+      setIsLoading(false)
       setTimeout(() => {
-        push(redirectAfterSignUp);
-      }, 500);
-      return;
+        push(redirectAfterSignUp)
+      }, 500)
+      return
     }
 
-    if (res.status === "error") {
-      setError(res.error);
+    if (res.status === 'error') {
+      setError(res.error)
     }
 
-    setIsLoading(false);
-  };
+    setIsLoading(false)
+  }
 
   return (
-    <div className="min-h-screen flex">
-      <div className="container mx-auto flex-grow flex items-center justify-center">
-        <div className="w-full bg-white shadow-xl p-8 md:p-16 rounded-xl max-w-sm md:max-w-md lg:max-w-lg">
-          <div className="text-center mb-4">
-            <h2 className="font-semibold text-2xl mb-1">Sign Up</h2>
-            <p className="text-gray-500 text-sm font-normal">
-              Be part of our community 🎉
-            </p>
-          </div>
-
-          {message && (
-            <p className="text-green-500 text-sm text-center">{message}</p>
-          )}
-
-          <Form {...form}>
-            <form
-              className="py-4 space-y-5 w-full"
-              onSubmit={form.handleSubmit(onSubmit)}
-            >
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Input placeholder="Email" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <div className="relative">
-                      <FormControl>
-                        <Input
-                          type={showPassword ? "text" : "password"}
-                          placeholder="Password"
-                          {...field}
-                        />
-                      </FormControl>
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-2.5"
-                      >
-                        {showPassword ? (
-                          <EyeOff size={20} />
-                        ) : (
-                          <Eye size={20} />
-                        )}
-                      </button>
-                    </div>
-                    <FormDescription>
-                      Password must be at least 8 characters
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="confirmPassword"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Input
-                        type={showPassword ? "text" : "password"}
-                        placeholder="Confirm Password"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {error && (
-                <p className="text-red-500 text-sm text-center">{error}</p>
-              )}
-
-              <Button
-                type="submit"
-                variant="secondary"
-                className="bg-black text-white w-full hover:text-black focus:ring-4 focus:outline-none font-medium rounded-lg px-5 py-2.5 text-center flex justify-center items-center transition-colors"
-                disabled={isLoading}
-              >
-                {isLoading ? "Signing Up..." : "Sign Up"}{" "}
-                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              </Button>
-            </form>
-          </Form>
-
-          <p className="text-center text-sm text-gray-500">
-            Already have an account?{" "}
-            <Link className="text-blue-400 hover:underline" href={signInPage}>
-              Sign In
-            </Link>
-          </p>
+    <div className="authflow-flex authflow-items-center authflow-justify-center">
+      <div
+        className={cn(
+          'authflow-w-full authflow-shadow-xl authflow-p-8 authflow-md:p-16 authflow-rounded-xl authflow-max-w-sm md:authflow-max-w-md lg:authflow-max-w-lg',
+          wrapperClassName
+        )}
+      >
+        <div className="authflow-text-center authflow-mb-4">
+          <h2 className="authflow-font-semibold authflow-text-2xl authflow-mb-1">Sign Up</h2>
+          <p className="authflow-text-gray-500 authflow-text-sm authflow-font-normal">Be part of our community 🎉</p>
         </div>
+
+        {message && <p className="authflow-text-green-500 authflow-text-sm authflow-text-center">{message}</p>}
+
+        <Form {...form}>
+          <form
+            className={cn('authflow-py-4 authflow-space-y-5 authflow-w-full', formClassName)}
+            onSubmit={form.handleSubmit(onSubmit)}
+          >
+            {fields.map((item) => (
+              <FormField
+                key={item.name}
+                name={item.name as any}
+                defaultValue={item.defaultValue}
+                disabled={item.disabled}
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    {item.labelText && <FormLabel>{item.labelText}</FormLabel>}
+                    {item.name === 'password' || item.name === 'confirmPassword' ? (
+                      <div className="authflow-relative">
+                        <FormControl>
+                          <Input
+                            type={showPassword ? 'text' : 'password'}
+                            placeholder={item.placeholder}
+                            {...field}
+                            className={item.className}
+                          />
+                        </FormControl>
+                        {item.name === 'password' && (
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="authflow-absolute authflow-right-3 authflow-top-2.5"
+                          >
+                            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                          </button>
+                        )}
+                      </div>
+                    ) : (
+                      <FormControl>
+                        <Input type={item.type} placeholder={item.placeholder} {...field} className={item.className} />
+                      </FormControl>
+                    )}
+                    {item.hint && <FormDescription>{item.hint}</FormDescription>}
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            ))}
+
+            {error && <p className="authflow-text-destructive authflow-text-sm authflow-text-center">{error}</p>}
+
+            <Button
+              type="submit"
+              variant="default"
+              className={cn(
+                'authflow-text-white authflow-w-full focus:authflow-ring-4 focus:authflow-outline-none authflow-rounded-lg authflow-px-5 authflow-py-2.5 authflow-text-center authflow-flex authflow-transition-colors',
+                buttonClassName
+              )}
+              disabled={isLoading}
+            >
+              {isLoading ? 'Signing Up...' : 'Sign Up'}{' '}
+              {isLoading && <Loader className="authflow-mr-2 authflow-h-4 authflow-w-4 authflow-animate-spin" />}
+            </Button>
+          </form>
+        </Form>
+
+        <p className="authflow-text-center authflow-text-sm authflow-text-gray-500">
+          Already have an account?{' '}
+          <Link className="authflow-text-blue-400 hover:authflow-underline" href={signInPage}>
+            Sign In
+          </Link>
+        </p>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Signup;
+export default Signup
