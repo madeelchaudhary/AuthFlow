@@ -5,27 +5,27 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/src/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:ring-offset-slate-950 dark:focus-visible:ring-slate-300",
+  "authflow-inline-flex authflow-items-center authflow-justify-center authflow-whitespace-nowrap authflow-rounded-md authflow-text-sm authflow-font-medium authflow-ring-offset-white authflow-transition-colors focus-visible:authflow-outline-none focus-visible:authflow-ring-2 focus-visible:authflow-ring-slate-950 focus-visible:authflow-ring-offset-2 disabled:authflow-pointer-events-none disabled:authflow-opacity-50 dark:authflow-ring-offset-slate-950 dark:focus-visible:authflow-ring-slate-300",
   {
     variants: {
       variant: {
         default:
-          "bg-slate-900 text-slate-50 hover:bg-slate-900/90 dark:bg-slate-50 dark:text-slate-900 dark:hover:bg-slate-50/90",
+          "authflow-bg-slate-900 authflow-text-slate-50 hover:authflow-bg-slate-900/90 dark:authflow-bg-slate-50 dark:authflow-text-slate-900 dark:hover:authflow-bg-slate-50/90",
         destructive:
-          "bg-red-500 text-slate-50 hover:bg-red-500/90 dark:bg-red-900 dark:text-slate-50 dark:hover:bg-red-900/90",
+          "authflow-bg-red-500 authflow-text-slate-50 hover:authflow-bg-red-500/90 dark:authflow-bg-red-900 dark:authflow-text-slate-50 dark:hover:authflow-bg-red-900/90",
         outline:
-          "border border-slate-200 bg-white hover:bg-slate-100 hover:text-slate-900 dark:border-slate-800 dark:bg-slate-950 dark:hover:bg-slate-800 dark:hover:text-slate-50",
+          "authflow-border authflow-border-slate-200 authflow-bg-white hover:authflow-bg-slate-100 hover:authflow-text-slate-900 dark:authflow-border-slate-800 dark:authflow-bg-slate-950 dark:hover:authflow-bg-slate-800 dark:hover:authflow-text-slate-50",
         secondary:
-          "bg-slate-100 text-slate-900 hover:bg-slate-100/80 dark:bg-slate-800 dark:text-slate-50 dark:hover:bg-slate-800/80",
+          "authflow-bg-slate-100 authflow-text-slate-900 hover:authflow-bg-slate-100/80 dark:authflow-bg-slate-800 dark:authflow-text-slate-50 dark:hover:authflow-bg-slate-800/80",
         ghost:
-          "hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-slate-50",
-        link: "text-slate-900 underline-offset-4 hover:underline dark:text-slate-50",
+          "hover:authflow-bg-slate-100 hover:authflow-text-slate-900 dark:hover:authflow-bg-slate-800 dark:hover:authflow-text-slate-50",
+        link: "authflow-text-slate-900 authflow-underline-offset-4 hover:authflow-underline dark:authflow-text-slate-50",
       },
       size: {
-        default: "h-10 px-4 py-2",
-        sm: "h-9 rounded-md px-3",
-        lg: "h-11 rounded-md px-8",
-        icon: "h-10 w-10",
+        default: "authflow-h-10 authflow-px-4 authflow-py-2",
+        sm: "authflow-h-9 authflow-rounded-md authflow-px-3",
+        lg: "authflow-h-11 authflow-rounded-md authflow-px-8",
+        icon: "authflow-h-10 authflow-w-10",
       },
     },
     defaultVariants: {
