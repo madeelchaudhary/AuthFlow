@@ -1,5 +1,5 @@
 {
-  "name": "authflow",
+  "name": "authflow-next",
   "description": "AuthFlow is a fullstack authentication flow built with customizability in mind.",
   "keywords": [
     "nextjs",
@@ -25,7 +25,6 @@
     "build": "tsup",
     "dev": "tsup --watch",
     "test": "jest",
-    "prepublishOnly": "yarn build",
     "lint": "eslint . --ext .ts,.tsx",
     "format": "prettier --write",
     "clean": "rm -rf dist",
