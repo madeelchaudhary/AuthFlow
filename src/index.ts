@@ -1,3 +1,1 @@
-import AuthFlow from "./auth-flow";
-
-export { AuthFlow };
+export { default as AuthFlow } from "./auth-flow";
