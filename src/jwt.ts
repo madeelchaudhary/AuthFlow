@@ -41,7 +41,8 @@ export const decode = async ({ secret, token }: DecodeParams) => {
     }
     if (
       error instanceof errors.JWTInvalid ||
-      error instanceof errors.JWSSignatureVerificationFailed
+      error instanceof errors.JWSSignatureVerificationFailed ||
+      error instanceof errors.JWSInvalid
     ) {
       throw new TokenInvalidError();
     }
