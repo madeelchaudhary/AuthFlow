@@ -207,11 +207,12 @@ This component renders a registration form that allows users to create a new acc
 Define a custom adapter to interact with your chosen database and ORM. The adapter object must implement the `Adapter` interface, which defines methods for user management and session handling.
 
 Implement the following methods in your custom adapter:
-`getUserByIdentifier(identifier: string | number)`: Retrieves a user by their identifier (e.g., email) from the database.
-`createUser(user: Omit<User, "id">)`: Creates a new user record in the database.
-`(Optional) createSession(user: User, sessionToken: string, expiresIn: Date)`: Creates a session for a user (if session strategy is used).
-`(Optional) destroySession(sessionToken: string)`: Destroys a session (if session strategy is used).
-`(Optional) getUserFromSession(sessionToken: string)`: Retrieves a user associated with a session token (if session strategy is used).
+
+- `getUserByIdentifier(identifier: string | number)`: Retrieves a user by their identifier (e.g., email) from the database.
+- `createUser(user: Omit<User, "id">)`: Creates a new user record in the database.
+- `(Optional) createSession(user: User, sessionToken: string, expiresIn: Date)`: Creates a session for a user (if session strategy is used).
+- `(Optional) destroySession(sessionToken: string)`: Destroys a session (if session strategy is used).
+- `(Optional) getUserFromSession(sessionToken: string)`: Retrieves a user associated with a session token (if session strategy is used).
 
 > **Note**: I'm working on adapters for popular databases and ORMs. Stay tuned for updates!
 
