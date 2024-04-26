@@ -21,7 +21,7 @@
     "dist"
   ],
   "scripts": {
-    "publish": "yarn format && yarn lint && yarn build && changeset publish",
+    "publish": "yarn lint && yarn build && changeset publish",
     "prepublish": "yarn build",
     "build": "tsup",
     "dev": "tsup --watch",
