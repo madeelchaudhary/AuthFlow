@@ -5,32 +5,29 @@ on:
     branches:
       - main
 
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
 jobs:
-  build:
+  build-and-publish:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      - name: Use Node.js
-        uses: actions/setup-node@v2
+      - name: Use Node.js 20.5
+        uses: actions/setup-node@v3
         with:
           node-version: 20.5
 
       - name: Install dependencies
-        run: yarn install
+        run: yarn
 
-      - name: Lint Code
-        run: yarn lint
-
-      - name: Build Package
-        run: yarn build
-
-      - name: Authenticate with NPM
+      - name: Create Release Pull Request or Publish to npm
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          publish: yarn publish
+          access: public
         env:
-          NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: echo "//registry.npmjs.org/:_authToken=$NPM_AUTH_TOKEN" > ~/.npmrc
-
-      - name: Publish to NPM
-        run: yarn publish --access public
-        if: github.ref == 'refs/heads/main'
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
